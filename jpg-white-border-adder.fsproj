@@ -1,12 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <PublishAot>true</PublishAot>
     <OutputType>Exe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
     <RootNamespace>jpg_white_border_adder</RootNamespace>
     <AssemblyName>jpgWhiteBorderAdder</AssemblyName>
-    <PublishAot>true</PublishAot>
-    <SelfContained>true</SelfContained>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
   </PropertyGroup>
 

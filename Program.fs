@@ -41,20 +41,26 @@ let addWhiteBorderAndReplace (inputFile: string) =
             * borderSizePercentage
         )
 
-    let newSize = image.Width + (2 * borderSize), image.Height + (2 * borderSize)
+    let newWidth = image.Width + (2 * borderSize)
+    let newHeight = image.Height + (2 * borderSize)
 
-    use newImage = new Bitmap(fst newSize, snd newSize)
+    use newImage = new Bitmap(newWidth, newHeight)
     use graphics = Graphics.FromImage(newImage)
     graphics.Clear(Color.White)
-    graphics.DrawImage(image, borderSize, borderSize)
+
+    graphics.DrawImage(image, borderSize, borderSize, image.Width, image.Height)
 
     if format = ImageFormat.Jpeg then
         image.PropertyItems
         |> Array.iter newImage.SetPropertyItem
 
+    image.Dispose()
+
     let tempFile = Path.GetTempFileName()
     saveImage newImage tempFile format
     File.Replace(tempFile, inputFile, null)
+
+
 
 [<EntryPoint>]
 let main argv =

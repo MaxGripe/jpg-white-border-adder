@@ -6,19 +6,15 @@
 ![GitHub Repo stars](https://img.shields.io/github/stars/MaxGripe/repository-template)
 
 
-# Template Repository
+# jpgWhiteBorderAdder
 
-This repository serves as a template for starting new projects.
+Adds a white border to images in JPEG and PNG formats. The program is designed to automatically modify existing image files by adding a uniform white border around them.
 
 ## Features
 
-- Easy setup
-- Customizable configurations
-- Some popular badges already in place
-
-## Getting started
-
-To use this template, select it from the **Repository template** dropdown when creating a new repository.
+- Supports JPEG and PNG formats.
+- Automatically adds a white border with a width of 5% of the image's shortest side.
+- Preserves EXIF metadata for JPEG images.
 
 ## License
 
