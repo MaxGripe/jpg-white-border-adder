@@ -1,10 +1,10 @@
 
+![Workflow Status](https://github.com/MaxGripe/jpg-white-border-adder/actions/workflows/dotnet.yml/badge.svg)
 ![GitHub repo size](https://img.shields.io/github/repo-size/MaxGripe/repository-template)
 ![GitHub License](https://img.shields.io/github/license/MaxGripe/repository-template)
 ![GitHub Created At](https://img.shields.io/github/created-at/MaxGripe/repository-template)
 ![GitHub forks](https://img.shields.io/github/forks/MaxGripe/repository-template)
 ![GitHub Repo stars](https://img.shields.io/github/stars/MaxGripe/repository-template)
-![Workflow Status](https://github.com/MaxGripe/jpg-white-border-adder/actions/workflows/dotnet.yml/badge.svg)
 
 # jpgWhiteBorderAdder
 
