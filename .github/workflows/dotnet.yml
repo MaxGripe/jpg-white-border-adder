@@ -1,8 +1,8 @@
-name: .NET Build and Auto-Release
+name: Multi-OS Release Workflow
 
 on:
-  push:
-    branches: [ "master" ]
+  release:
+    types: [published]
 
 jobs:
   build:
@@ -14,6 +14,7 @@ jobs:
             target: win-x64
           - os: macos-latest
             target: osx-arm64
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -33,11 +34,9 @@ jobs:
           name: ${{ matrix.target }}-build
           path: output/${{ matrix.target }}
 
-      - name: Create GitHub Release
+      - name: Attach Artifacts to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: "latest"
-          name: "auto-release"
           files: "output/${{ matrix.target }}/*"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
