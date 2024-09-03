@@ -5,7 +5,7 @@ on:
     branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
-  workflow_dispatch: # Umożliwia ręczne uruchomienie workflow
+  workflow_dispatch:
 
 jobs:
   build-windows:
@@ -24,17 +24,11 @@ jobs:
         run: |
           dotnet publish --runtime win-x64 -c Release -o "output/win-x64"
 
-      - name: Upload Windows Build Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: win-x64-build
-          path: output/win-x64
-
       - name: Create GitHub Release and Upload Artifact
         uses: softprops/action-gh-release@v2
         with:
           tag_name: "latest"
-          release_name: "Auto-release"
+          name: "Auto-release"
           files: "output/win-x64/jpgWhiteBorderAdder.exe"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
