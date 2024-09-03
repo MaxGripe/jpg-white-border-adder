@@ -1,0 +1,53 @@
+name: .NET Build and Release
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+  workflow_dispatch:
+  release:
+    types: [created]
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build --no-restore
+    - name: Test
+      run: dotnet test --no-build --verbosity normal
+    - name: Publish
+      run: dotnet publish -c Release -r win-x64 --self-contained true -p:PublishAot=true -o ./publish
+
+  release:
+    needs: build
+    runs-on: windows-latest
+    steps:
+    - name: Upload release asset
+      uses: actions/upload-artifact@v3
+      with:
+        name: aot-build
+        path: ./publish/jpgWhiteBorderAdder.exe
+
+    - name: Create GitHub Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        body: |
+          AOT compiled release for version ${{ github.ref }}
+        draft: false
+        prerelease: false
+        files: ./publish/jpgWhiteBorderAdder.exe
