@@ -10,11 +10,16 @@ on:
     types: [created]
 
 jobs:
-  build-windows:
-    name: Build on Windows
-    runs-on: windows-latest
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest]
+        target:
+          - win-x64
+          - osx-arm64
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Setup .NET
@@ -22,50 +27,17 @@ jobs:
         with:
           dotnet-version: 8.0.x
 
-      - name: Build for Windows
+      - name: Build application
         run: |
-          dotnet publish --runtime win-x64 -c Release -o "output/win-x64"
+          dotnet publish --runtime ${{ matrix.target }} -c Release -o "output/${{ matrix.target }}"
 
-      - name: Upload Windows Build Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: win-x64-build
-          path: output/win-x64
-
-      - name: Publish Windows Build to GitHub Release
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
-        if: github.event_name == 'release'
         with:
-          files: "output/win-x64/*"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  build-macos:
-    name: Build on macOS
-    runs-on: macos-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 8.0.x
-
-      - name: Build for macOS
-        run: |
-          dotnet publish --runtime osx-arm64 -c Release -o "output/osx-arm64"
-
-      - name: Upload macOS Build Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: osx-arm64-build
-          path: output/osx-arm64
-
-      - name: Publish macOS Build to GitHub Release
-        uses: softprops/action-gh-release@v2
-        if: github.event_name == 'release'
-        with:
-          files: "output/osx-arm64/*"
+          tag_name: "latest"
+          name: "auto-release"
+          files: "output/${{ matrix.target }}/*"
+          draft: false
+          prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
