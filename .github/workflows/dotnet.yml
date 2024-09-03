@@ -10,13 +10,9 @@ on:
     types: [created]
 
 jobs:
-  release:
-    name: Release
-    strategy:
-      matrix:
-        os: [windows-latest, macos-latest]
-        target: [win-x64, osx-arm64]
-    runs-on: ${{ matrix.os }}
+  build-windows:
+    name: Build on Windows
+    runs-on: windows-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -26,26 +22,50 @@ jobs:
         with:
           dotnet-version: 8.0.x
 
-      - name: Build
+      - name: Build for Windows
         run: |
-          dotnet publish --runtime "${{ matrix.target }}" -c Release -o "output/${{ matrix.target }}"
+          dotnet publish --runtime win-x64 -c Release -o "output/win-x64"
 
-      - name: Create Release Directory
-        run: |
-          tag=$(git describe --tags --abbrev=0)
-          release_name="App-$tag-${{ matrix.target }}"
-          mkdir "$release_name"
-          mv output/${{ matrix.target }}/* "$release_name/"
-
-      - name: Upload Release Artifacts
+      - name: Upload Windows Build Artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ matrix.target }}-build
-          path: ${{ steps.create_release_name.outputs.release_name }}
+          name: win-x64-build
+          path: output/win-x64
 
-      - name: Publish to GitHub Release
+      - name: Publish Windows Build to GitHub Release
         uses: softprops/action-gh-release@v2
+        if: github.event_name == 'release'
         with:
-          files: "output/${{ matrix.target }}/*"
+          files: "output/win-x64/*"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build-macos:
+    name: Build on macOS
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Build for macOS
+        run: |
+          dotnet publish --runtime osx-arm64 -c Release -o "output/osx-arm64"
+
+      - name: Upload macOS Build Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: osx-arm64-build
+          path: output/osx-arm64
+
+      - name: Publish macOS Build to GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: github.event_name == 'release'
+        with:
+          files: "output/osx-arm64/*"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
