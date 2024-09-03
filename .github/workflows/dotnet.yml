@@ -27,7 +27,7 @@ jobs:
           dotnet publish --runtime win-x64 -c Release -o "output/win-x64"
 
       - name: Upload Windows Build Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: win-x64-build
           path: output/win-x64
@@ -57,7 +57,7 @@ jobs:
           dotnet publish --runtime osx-arm64 -c Release -o "output/osx-arm64"
 
       - name: Upload macOS Build Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: osx-arm64-build
           path: output/osx-arm64
