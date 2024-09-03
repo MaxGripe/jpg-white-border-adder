@@ -12,10 +12,6 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-latest, macos-latest]
-        target:
-          - win-x64
-          - osx-arm64
         include:
           - os: windows-latest
             target: win-x64
@@ -42,7 +38,6 @@ jobs:
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
-        if: github.ref == 'refs/heads/master'
         with:
           tag_name: "latest"
           name: "auto-release"
