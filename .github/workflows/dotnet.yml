@@ -1,22 +1,18 @@
-name: Multi-OS Release Workflow
+name: .NET Build and Release
 
 on:
-  release:
-    types: [published]
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+  workflow_dispatch: # Umożliwia ręczne uruchomienie workflow
 
 jobs:
-  build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        include:
-          - os: windows-latest
-            target: win-x64
-          - os: macos-latest
-            target: osx-arm64
-
+  build-windows:
+    name: Build on Windows
+    runs-on: windows-latest
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup .NET
@@ -24,19 +20,21 @@ jobs:
         with:
           dotnet-version: 8.0.x
 
-      - name: Build application
+      - name: Build for Windows
         run: |
-          dotnet publish --runtime ${{ matrix.target }} -c Release -o "output/${{ matrix.target }}"
+          dotnet publish --runtime win-x64 -c Release -o "output/win-x64"
 
-      - name: Upload Build Artifacts
+      - name: Upload Windows Build Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.target }}-build
-          path: output/${{ matrix.target }}
+          name: win-x64-build
+          path: output/win-x64
 
-      - name: Attach Artifacts to GitHub Release
+      - name: Create GitHub Release and Upload Artifact
         uses: softprops/action-gh-release@v2
         with:
-          files: "output/${{ matrix.target }}/*"
+          tag_name: "latest"
+          release_name: "Auto-release"
+          files: "output/win-x64/jpgWhiteBorderAdder.exe"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
