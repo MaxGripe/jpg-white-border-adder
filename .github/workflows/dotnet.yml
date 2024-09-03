@@ -6,8 +6,6 @@ on:
   pull_request:
     branches: [ "master" ]
   workflow_dispatch:
-  release:
-    types: [created]
 
 jobs:
   build:
@@ -18,6 +16,11 @@ jobs:
         target:
           - win-x64
           - osx-arm64
+        include:
+          - os: windows-latest
+            target: win-x64
+          - os: macos-latest
+            target: osx-arm64
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -31,13 +34,18 @@ jobs:
         run: |
           dotnet publish --runtime ${{ matrix.target }} -c Release -o "output/${{ matrix.target }}"
 
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.target }}-build
+          path: output/${{ matrix.target }}
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
+        if: github.ref == 'refs/heads/master'
         with:
           tag_name: "latest"
           name: "auto-release"
           files: "output/${{ matrix.target }}/*"
-          draft: false
-          prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
