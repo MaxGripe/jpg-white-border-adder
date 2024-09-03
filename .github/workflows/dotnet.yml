@@ -10,52 +10,42 @@ on:
     types: [created]
 
 jobs:
-  build:
-
-    runs-on: windows-latest
-
-    steps:
-    - uses: actions/checkout@v4
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: 8.0.x
-    - name: Restore dependencies
-      run: dotnet restore
-    - name: Build
-      run: dotnet build --no-restore
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
-    - name: Publish
-      run: dotnet publish -c Release -r win-x64 --self-contained true -p:PublishAot=true -o ./publish
-
   release:
-    needs: build
-    runs-on: windows-latest
+    name: Release
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest]
+        target: [win-x64, osx-arm64]
+    runs-on: ${{ matrix.os }}
     steps:
-    - name: Download build artifact
-      uses: actions/download-artifact@v3
-      with:
-        name: aot-build
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    - name: Create GitHub Release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
-        body: |
-          AOT compiled release for version ${{ github.ref }}
-        draft: false
-        prerelease: false
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
 
-    - name: Upload asset to release
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./publish/jpgWhiteBorderAdder.exe
-        asset_name: jpgWhiteBorderAdder.exe
-        asset_content_type: application/octet-stream
+      - name: Build
+        run: |
+          dotnet publish --runtime "${{ matrix.target }}" -c Release -o "output/${{ matrix.target }}"
+
+      - name: Create Release Directory
+        run: |
+          tag=$(git describe --tags --abbrev=0)
+          release_name="App-$tag-${{ matrix.target }}"
+          mkdir "$release_name"
+          mv output/${{ matrix.target }}/* "$release_name/"
+
+      - name: Upload Release Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.target }}-build
+          path: ${{ steps.create_release_name.outputs.release_name }}
+
+      - name: Publish to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: "output/${{ matrix.target }}/*"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
