@@ -56,9 +56,10 @@ let addWhiteBorderAndReplace (inputFile: string) =
 
     image.Dispose()
 
-    let tempFile = Path.GetTempFileName()
-    saveImage newImage tempFile format
-    File.Replace(tempFile, inputFile, null)
+    let tempFileName = Path.GetRandomFileName()
+    let tempFilePath = Path.Combine(Path.GetDirectoryName(inputFile), tempFileName)
+    saveImage newImage tempFilePath format
+    File.Replace(tempFilePath, inputFile, null)
 
 
 
